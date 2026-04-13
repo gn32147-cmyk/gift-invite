@@ -27,27 +27,34 @@
             align-items: center;
         }
 
-        /* 紅幕動畫 / Curtain Animation */
+        /* 紅幕動畫區 / Curtain Animation */
         #curtain-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1000;
             display: flex;
             cursor: pointer;
+            transition: visibility 1.5s;
         }
 
         .curtain {
             width: 50%; height: 100%;
             background: linear-gradient(to right, #7a0000, #4a0000);
             transition: transform 1.8s cubic-bezier(0.7, 0, 0.3, 1);
+            position: relative;
+        }
+
+        /* 增加褶皺感 */
+        .curtain::after {
+            content: "";
+            position: absolute;
+            top: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(90deg, transparent, rgba(0,0,0,0.2) 20px, transparent 40px);
+            opacity: 0.3;
         }
 
         .curtain.left { border-right: 2px solid rgba(255,255,255,0.1); }
         .curtain.right { border-left: 2px solid rgba(255,255,255,0.1); }
-
-        #curtain-overlay.open .curtain.left { transform: translateX(-100%); }
-        #curtain-overlay.open .curtain.right { transform: translateX(100%); }
-        #curtain-overlay.open { pointer-events: none; }
 
         .curtain-text {
             position: absolute;
@@ -59,8 +66,15 @@
             text-align: center;
             letter-spacing: 5px;
             z-index: 1001;
+            transition: opacity 0.8s ease, visibility 0.8s;
             animation: breathe 2s infinite;
         }
+
+        /* 開啟狀態設定 */
+        #curtain-overlay.open .curtain.left { transform: translateX(-100%); }
+        #curtain-overlay.open .curtain.right { transform: translateX(100%); }
+        #curtain-overlay.open .curtain-text { opacity: 0; visibility: hidden; }
+        #curtain-overlay.open { pointer-events: none; visibility: hidden; transition-delay: 1.5s; }
 
         @keyframes breathe { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
@@ -72,7 +86,7 @@
             text-align: center;
             opacity: 0;
             transform: translateY(20px);
-            transition: all 1s ease 0.5s;
+            transition: all 1s ease 0.8s;
         }
 
         #curtain-overlay.open + .container { opacity: 1; transform: translateY(0); }
@@ -82,6 +96,7 @@
             padding: 50px 20px;
             position: relative;
             background: rgba(10,10,10,0.9);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
         }
 
         h1 {
@@ -169,7 +184,6 @@
             margin-top: 15px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
         /* 彈窗 / Modal */
