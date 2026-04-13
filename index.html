@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>豪華首映禮邀請函 - 心願形容詞謎題</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            --black: #0a0a0a;
+            --white: #f8f8f8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--black);
+            color: var(--white);
+            font-family: 'Noto Serif TC', serif;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 紅幕動畫 / Curtain Animation */
+        #curtain-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1000;
+            display: flex;
+            cursor: pointer;
+        }
+
+        .curtain {
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, #7a0000, #4a0000);
+            transition: transform 1.8s cubic-bezier(0.7, 0, 0.3, 1);
+        }
+
+        .curtain.left { border-right: 2px solid rgba(255,255,255,0.1); }
+        .curtain.right { border-left: 2px solid rgba(255,255,255,0.1); }
+
+        #curtain-overlay.open .curtain.left { transform: translateX(-100%); }
+        #curtain-overlay.open .curtain.right { transform: translateX(100%); }
+        #curtain-overlay.open { pointer-events: none; }
+
+        .curtain-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #f9e29b;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            text-align: center;
+            letter-spacing: 5px;
+            z-index: 1001;
+            animation: breathe 2s infinite;
+        }
+
+        @keyframes breathe { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        /* 主容器 / Main Container */
+        .container {
+            max-width: 600px;
+            width: 90%;
+            padding: 80px 20px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease 0.5s;
+        }
+
+        #curtain-overlay.open + .container { opacity: 1; transform: translateY(0); }
+
+        .star-frame {
+            border: 1px solid var(--gold);
+            padding: 50px 20px;
+            position: relative;
+            background: rgba(10,10,10,0.9);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            letter-spacing: 5px;
+            color: var(--gold);
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        /* 填寫區 / Form Section */
+        .puzzle-section {
+            background: #151515;
+            padding: 35px 25px;
+            margin-top: 40px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            text-align: left;
+        }
+
+        .puzzle-section h2 {
+            font-size: 1.4rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .puzzle-hint {
+            font-size: 0.85rem;
+            color: #888;
+            text-align: center;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .input-group { margin-bottom: 25px; }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            border: none;
+            border-bottom: 1px solid #444;
+            color: white;
+            font-family: inherit;
+            font-size: 1.1rem;
+            transition: border-bottom-color 0.3s;
+        }
+
+        input:focus { outline: none; border-bottom-color: var(--gold); }
+
+        .name-input {
+            border-bottom: 2px solid var(--gold);
+            font-weight: bold;
+            font-size: 1.3rem;
+            text-align: center;
+            color: var(--gold-gradient);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 18px;
+            background: var(--gold-gradient);
+            border: none;
+            color: black;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        /* 彈窗 / Modal */
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+        }
+
+        #modal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: #111;
+            border: 1px solid var(--gold);
+            padding: 40px 30px;
+            z-index: 2001;
+            width: 85%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .modal-btn {
+            display: block;
+            margin: 15px auto;
+            padding: 15px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .btn-line { background: #06C755; color: white; }
+        .btn-copy { background: #333; color: var(--gold); border: 1px solid var(--gold); }
+    </style>
+</head>
+<body>
+
+    <!-- 開場紅幕 / Curtain Overlay -->
+    <div id="curtain-overlay" onclick="openCurtain()">
+        <div class="curtain left"></div>
+        <div class="curtain-text">
+            <p>MYSTERY REVEAL</p>
+            <p style="font-size: 1rem; letter-spacing: 10px; margin-top: 10px;">點擊開啟謎題</p>
+        </div>
+        <div class="curtain right"></div>
+    </div>
+
+    <!-- 邀請函主體 / Main Invitation -->
+    <div class="container">
+        <div class="star-frame">
+            <h1>THE ENIGMA</h1>
+            <p class="subtitle">星光首映 · 心願謎面</p>
+            
+            <p style="line-height: 1.8; margin-bottom: 30px; color: #ccc; font-size: 0.95rem;">
+                親愛的領銜主演，<br>
+                最棒的劇本總是充滿驚喜。<br>
+                請給出三個關於你心儀禮物的「形容詞」，<br>
+                讓我們在首映當天，挑戰猜中你的心。
+            </p>
+
+            <div class="puzzle-section">
+                <h2>★ 心願形容詞登記 ★</h2>
+                <p class="puzzle-hint">提示：請給出形容詞，不要直接說出物品名稱。<br>（例如：溫暖的、金屬質感的、能隨身攜帶的）</p>
+                
+                <div class="input-group">
+                    <label>嘉賓姓名</label>
+                    <input type="text" id="guest-name" class="name-input" placeholder="您的藝名">
+                </div>
+
+                <div class="input-group" style="margin-top: 40px;">
+                    <label>形容詞 01 (外觀或觸感)</label>
+                    <input type="text" id="adj1" placeholder="例如：復古的、圓潤的...">
+                </div>
+                <div class="input-group">
+                    <label>形容詞 02 (功能或情境)</label>
+                    <input type="text" id="adj2" placeholder="例如：療癒空間的、實用的...">
+                </div>
+                <div class="input-group">
+                    <label>形容詞 03 (氣味、顏色或靈魂)</label>
+                    <input type="text" id="adj3" placeholder="例如：木質調的、極簡主義的...">
+                </div>
+
+                <button class="btn-submit" onclick="submitPuzzle()">提交謎題並告知製片人</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 彈窗介面 / Modal Interface -->
+    <div id="overlay"></div>
+    <div id="modal">
+        <div id="modal-title" style="color: var(--gold); font-size: 1.5rem; margin-bottom: 10px; font-weight: bold;"></div>
+        <p style="color: #aaa; margin-bottom: 25px; font-size: 0.95rem; line-height: 1.6;">
+            您的謎題已錄入。這場默契大考驗即將開始！<br>請點擊下方按鈕將謎面發送給我們：
+        </p>
+        <a id="line-link" href="#" class="modal-btn btn-line">透過 LINE 寄送謎面</a>
+        <button onclick="copyToClipboard()" class="modal-btn btn-copy">複製謎面文字</button>
+        <button onclick="closeModal()" style="background:none; border:none; color:#555; margin-top:20px; cursor:pointer; text-decoration: underline;">返回修改</button>
+    </div>
+
+    <script>
+        function openCurtain() {
+            document.getElementById('curtain-overlay').classList.add('open');
+        }
+
+        function getMessage() {
+            const name = document.getElementById('guest-name').value.trim();
+            const a1 = document.getElementById('adj1').value.trim();
+            const a2 = document.getElementById('adj2').value.trim();
+            const a3 = document.getElementById('adj3').value.trim();
+            return `🎬 【首映禮：嘉賓心願謎題】\n\n嘉賓姓名：${name}\n\n我的心願形容詞 (請猜猜看我想什麼)：\n1. ${a1}\n2. ${a2}\n3. ${a3}\n\n謎面已發出，看你們能不能猜中！`;
+        }
+
+        function submitPuzzle() {
+            const name = document.getElementById('guest-name').value.trim();
+            const a1 = document.getElementById('adj1').value.trim();
+            const a2 = document.getElementById('adj2').value.trim();
+            const a3 = document.getElementById('adj3').value.trim();
+
+            if (!name || !a1 || !a2 || !a3) {
+                alert('謎題不完整！請填寫姓名與三個形容詞。');
+                return;
+            }
+
+            const message = getMessage();
+            
+            document.getElementById('modal-title').innerText = `${name} 嘉賓，謎題已生效`;
+            document.getElementById('line-link').href = `https://line.me/R/msg/text/?${encodeURIComponent(message)}`;
+
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function copyToClipboard() {
+            const text = getMessage();
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('謎題內容已複製！');
+            } catch (err) {
+                alert('複製失敗，請手動選取文字傳送。');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function closeModal() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
